@@ -3,7 +3,6 @@
 import json
 import sys
 
-
 try:
     import requests
 except ImportError:
@@ -40,7 +39,7 @@ class TgSender:
                 conf = json.load(config)
                 return conf['BOT_TOKEN']
         except FileNotFoundError:
-            self.__bot_token = input('hi, please insert your bot token: ')
+            self.__bot_token = input('Hi, please insert your bot token: ')
             return self.__bot_token
 
     def __get_users_id(self, receivers) -> list:
@@ -112,58 +111,64 @@ class TgSender:
         :param receivers:
         :type receivers: list[str]
         """
-        file_name = file_path.split('/')[-1]
-        users_id = self.__get_users_id(receivers)
-        doc_url = self.__bot_url + 'sendDocument'
-        for user_id in users_id:
-            data = {
-                'chat_id': user_id,
-            }
-            files = {
-                'document': open(file_path, 'rb')
-            }
-            try:
-                requests.post(url=doc_url, data=data, files=files)
-            except NameError:
-                with open(file_path) as fp:
-                    file_data = fp.read()
-                    self.__http.request(url=doc_url, method='POST', fields={
-                                        'document': (file_name, file_data), 'chat_id': user_id})
+        try:
+            file_name = file_path.split('/')[-1]
+            users_id = self.__get_users_id(receivers)
+            doc_url = self.__bot_url + 'sendDocument'
+            for user_id in users_id:
+                data = {
+                    'chat_id': user_id,
+                }
+                files = {
+                    'document': open(file_path, 'rb')
+                }
+                try:
+                    requests.post(url=doc_url, data=data, files=files)
+                except NameError:
+                    with open(file_path) as fp:
+                        file_data = fp.read()
+                        self.__http.request(url=doc_url, method='POST', fields={
+                            'document': (file_name, file_data), 'chat_id': user_id})
+        except Exception as ex:
+            print(ex)
 
     def pull_doc(self) -> None:
-        push_url = self.__bot_url + 'getUpdates'
-        update_params = {
-            'offset': -1,
-        }
-        json_file = self.get_request(url=push_url, params=update_params)
-        file_name = json_file['result'][0]['message']['document']['file_name']
-        username = json_file['result'][0]['message']['from']['username']
-        inp = input(f'get file "{file_name}" from <<@{username}>>?[Y/n] ')
-        if inp in ['', 'Y', 'yes', 'y']:
-            print('downloading...')
-            try:
-                file_id = json_file['result'][0]['message']['document']['file_id']
-            except KeyError:
-                file_id = json_file['result'][0]['message']['document']['thumb']['file_id']
-            file_params = {
-                'file_id': file_id
+        try:
+            push_url = self.__bot_url + 'getUpdates'
+            update_params = {
+                'offset': -1,
             }
-            get_file_url = f'https://api.telegram.org/bot{self.__get_bot_token()}/getFile'
-            json_file = self.get_request(url=get_file_url, params=file_params)
-            get_file_path = json_file['result']['file_path']
-            file_url = f'https://api.telegram.org/file/bot{self.__get_bot_token()}/{get_file_path}'
-            with open(file_name, 'wb') as fd:
+            json_file = self.get_request(url=push_url, params=update_params)
+            file_name = json_file['result'][0]['message']['document']['file_name']
+            username = json_file['result'][0]['message']['from']['username']
+            inp = input(f'get file "{file_name}" from <<@{username}>>?[Y/n] ')
+            if inp in ['', 'Y', 'yes', 'y']:
+                print('downloading...')
                 try:
-                    get_file_req = requests.get(url=file_url)
-                    for chunk in get_file_req.iter_content(chunk_size=512 * 1024):
-                        if chunk:
-                            fd.write(chunk)
-                except NameError:
-                    urllib.request.urlretrieve(
-                        url=file_url, filename=file_name)
-            print('download completed')
-        else:
-            print('download canceled by you!')
+                    file_id = json_file['result'][0]['message']['document']['file_id']
+                except KeyError:
+                    file_id = json_file['result'][0]['message']['document']['thumb']['file_id']
+                file_params = {
+                    'file_id': file_id
+                }
+                get_file_url = f'https://api.telegram.org/bot{self.__get_bot_token()}/getFile'
+                json_file = self.get_request(url=get_file_url, params=file_params)
+                get_file_path = json_file['result']['file_path']
+                file_url = f'https://api.telegram.org/file/bot{self.__get_bot_token()}/{get_file_path}'
+                with open(file_name, 'wb') as fd:
+                    try:
+                        get_file_req = requests.get(url=file_url)
+                        for chunk in get_file_req.iter_content(chunk_size=512 * 1024):
+                            if chunk:
+                                fd.write(chunk)
+                    except NameError:
+                        urllib.request.urlretrieve(
+                            url=file_url, filename=file_name)
+                print('download completed')
+            else:
+                print('download canceled by you!')
+        except Exception as ex:
+            print(ex)
 
 
 sender = TgSender()
