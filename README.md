@@ -20,8 +20,7 @@ $ python3 tg_sender.py init
     "Vahid": 12345678, # Telegram Id
     "Hhz": 12345679,
     "Admin": ["Vahid", "Hhz"] # list of users name
-  }
-  
+  },
   "BOT_TOKEN": "jdaflkjlrkjwerjewklmdf3243j32"
 }
 ```
