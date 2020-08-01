@@ -4,7 +4,7 @@
 
 ---
 
-## Example (config.json file)
+## Initialization
 
 > First time to create config.json file run command:
 
@@ -12,12 +12,14 @@
 $ python3 tg_sender.py init
 ```
 
+- Example config file
+
 ```python
 {
   "USERS_DICT": {
-    "Vahid": 12345678, // Telegram Id
+    "Vahid": 12345678, # Telegram Id
     "Hhz": 12345679,
-    "Admin": ["Vahid", "Hhz"] // list of users name
+    "Admin": ["Vahid", "Hhz"] # list of users name
   }
   
   "BOT_TOKEN": "jdaflkjlrkjwerjewklmdf3243j32"
@@ -26,7 +28,7 @@ $ python3 tg_sender.py init
 
 ---
 
-## Example (send message)
+## SEND Message
 
 ```shell
 $ python3 tg_sender.py msg "Hello" "Vahid, Hhz"
@@ -35,14 +37,14 @@ $ python3 tg_sender.py msg "Hello" "Admin"
 
 --- 
 
-## Example (send file)
+## SEND File
 
 ```shell
 $ python3 tg_sender.py file "/path/to/file" "Admin"
 ```
 --- 
 
-## Example (get file)
+## GET File
 
 > Get the latest file sent to the bot
 
